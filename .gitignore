@@ -1,0 +1,95 @@
+# Navigate to project directory
+cd "D:\AI Projects\sadellari-agents"
+
+# Create .gitignore
+@"
+# Dependencies
+node_modules/
+.env
+.env.*
+
+# Builds
+dist/
+build/
+*.js
+*.js.map
+
+# Agent Implementation Details
+src/agents/**/impl/
+src/agents/**/logic/
+src/agents/**/strategies/
+
+# Sensitive Configuration
+src/config/secrets.ts
+src/config/private*.ts
+
+# Logs
+*.log
+logs/
+"@ > .gitignore
+
+# Create basic folder structure
+mkdir -p src/agents/{ceo,cfo,cto,legal}/handlers
+mkdir -p src/shared
+mkdir -p src/config
+
+# Create base files with public interfaces only
+@"
+// Public interface for CEO Agent
+export interface ICEOAgent {
+  // Public methods only
+  handleMessage(message: string): Promise<void>;
+}
+"@ > src/agents/ceo/types.ts
+
+# Create tsconfig.json
+@"
+{
+  "compilerOptions": {
+    "target": "es2020",
+    "module": "commonjs",
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"]
+    }
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "**/*.test.ts"]
+}
+"@ > tsconfig.json
+
+# Create package.json
+@"
+{
+  "name": "sadellari-agents",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "ts-node src/index.ts"
+  }
+}
+"@ > package.json
+
+# Create README.md with limited public information
+@"
+# Sadellari Agents
+
+C-suite AI agents for Sadellari Enterprises. Implementation details are proprietary.
+
+## Structure
+- CEO Agent
+- CFO Agent
+- CTO Agent
+- CLO Agent
+
+## License
+Copyright (c) 2025 Sadellari Enterprises. All rights reserved.
+"@ > README.md
