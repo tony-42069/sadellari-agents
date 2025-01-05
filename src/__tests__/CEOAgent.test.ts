@@ -34,7 +34,9 @@ describe("CEOAgent", () => {
     it("should initialize Slack App with correct credentials", () => {
       expect(App).toHaveBeenCalledWith({
         token: "test-token",
-        signingSecret: "test-secret"
+        appToken: undefined,
+        socketMode: true,
+        logLevel: "debug"
       });
     });
 

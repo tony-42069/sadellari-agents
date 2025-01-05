@@ -1,73 +1,63 @@
-import { App, LogLevel, CodedError } from "@slack/bolt";
+import { SlackIntegration } from "@shared/SlackIntegration";
 import { ICEOAgent } from "./types";
+import { SlackEvent, SlackMessage } from "@shared/types";
 
 export class CEOAgent implements ICEOAgent {
-  private app: App;
+  private slack: SlackIntegration;
   private csuiteChatId: string;
 
   constructor() {
-    try {
-      console.log("Initializing Slack App with Socket Mode...");
-      console.log("Using BOT_TOKEN:", process.env.SLACK_BOT_TOKEN ? "***" : "MISSING");
-      console.log("Using APP_TOKEN:", process.env.SLACK_APP_TOKEN ? "***" : "MISSING");
-      
-      this.app = new App({
-        token: process.env.SLACK_BOT_TOKEN,
-        appToken: process.env.SLACK_APP_TOKEN,
-        socketMode: true,
-        logLevel: LogLevel.DEBUG
-      });
-
-      this.app.error(async (error: CodedError) => {
-        console.error('Slack App Error:', error);
-        return Promise.resolve();
-      });
-
-      console.log("Slack App initialized successfully");
-    } catch (error) {
-      console.error("Failed to initialize Slack App:", error);
-      throw error;
-    }
+    this.slack = new SlackIntegration(
+      process.env.SLACK_BOT_TOKEN || "",
+      process.env.SLACK_APP_TOKEN || "",
+      process.env.SLACK_SIGNING_SECRET || ""
+    );
     this.csuiteChatId = process.env.CSUITE_CHANNEL_ID || "";
-    this.initializeEventListeners();
+    this.initialize();
   }
 
-  private initializeEventListeners() {
-    // Respond to mentions
-    this.app.event("app_mention", async ({ event, say }) => {
-      try {
-        console.log(`Received mention from ${event.user}: ${event.text}`);
-        await say({
-          text: `Hello! I am the CEO Agent. Thank you for your message: "${event.text}"`,
-          thread_ts: event.ts
-        });
-      } catch (error) {
-        console.error(`Error handling mention: ${error}`);
-      }
+  private initialize() {
+    this.slack.connect().catch((error: Error) => {
+      console.error("Failed to connect to Slack:", error);
     });
 
-    // Listen for messages in c-suite channel with proper type checking
-    this.app.message(async ({ message, say }) => {
-      // Narrowing the type with a custom type guard
-      const isValidMessage = (msg: any): msg is { text: string; channel: string; ts: string } => {
-        return typeof msg.text === "string" && typeof msg.channel === "string" && typeof msg.ts === "string";
-      };
-
-      if (isValidMessage(message) && message.channel === this.csuiteChatId) {
-        try {
-          console.log(`Received message in c-suite channel: ${message.text}`);
-          if (message.text.toLowerCase().includes("strategy") || 
-              message.text.toLowerCase().includes("decision")) {
-            await say({
-              text: "I see we're discussing strategy. As CEO, I'm here to help with strategic decisions.",
-              thread_ts: message.ts
-            });
-          }
-        } catch (error) {
-          console.error(`Error handling message: ${error}`);
-        }
-      }
+    this.slack.onMention(async (event: SlackEvent) => {
+      await this.handleMention(event);
     });
+
+    this.slack.onMessage(this.csuiteChatId, async (message: SlackMessage) => {
+      await this.handleCsuiteMessage(message);
+    });
+  }
+
+  private async handleMention(event: SlackEvent) {
+    try {
+      console.log(`Received mention from ${event.user}: ${event.text}`);
+      const response = await this.processMessage(event.text);
+      await this.slack.sendMessage(event.channel, response);
+    } catch (error) {
+      console.error("Error handling mention:", error);
+    }
+  }
+
+  private async handleCsuiteMessage(message: any) {
+    try {
+      console.log(`Received message in c-suite channel: ${message.text}`);
+      if (message.text.toLowerCase().includes("strategy") || 
+          message.text.toLowerCase().includes("decision")) {
+        const response = await this.processMessage(message.text);
+        await this.slack.sendMessage(message.channel, response);
+      }
+    } catch (error) {
+      console.error("Error handling c-suite message:", error);
+    }
+  }
+
+  async processMessage(message: string): Promise<string> {
+    if (message.toLowerCase().includes("strategy")) {
+      return "I see we're discussing strategy. As CEO, I'm here to help with strategic decisions.";
+    }
+    return "Hello! I am the CEO Agent. Thank you for your message.";
   }
 
   async handleMessage(message: string): Promise<void> {
