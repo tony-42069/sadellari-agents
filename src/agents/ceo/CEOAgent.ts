@@ -1,4 +1,4 @@
-import { App } from "@slack/bolt";
+import { App, LogLevel, CodedError } from "@slack/bolt";
 import { ICEOAgent } from "./types";
 
 export class CEOAgent implements ICEOAgent {
@@ -6,10 +6,28 @@ export class CEOAgent implements ICEOAgent {
   private csuiteChatId: string;
 
   constructor() {
-    this.app = new App({
-      token: process.env.SLACK_BOT_TOKEN,
-      signingSecret: process.env.SLACK_SIGNING_SECRET
-    });
+    try {
+      console.log("Initializing Slack App with Socket Mode...");
+      console.log("Using BOT_TOKEN:", process.env.SLACK_BOT_TOKEN ? "***" : "MISSING");
+      console.log("Using APP_TOKEN:", process.env.SLACK_APP_TOKEN ? "***" : "MISSING");
+      
+      this.app = new App({
+        token: process.env.SLACK_BOT_TOKEN,
+        appToken: process.env.SLACK_APP_TOKEN,
+        socketMode: true,
+        logLevel: LogLevel.DEBUG
+      });
+
+      this.app.error(async (error: CodedError) => {
+        console.error('Slack App Error:', error);
+        return Promise.resolve();
+      });
+
+      console.log("Slack App initialized successfully");
+    } catch (error) {
+      console.error("Failed to initialize Slack App:", error);
+      throw error;
+    }
     this.csuiteChatId = process.env.CSUITE_CHANNEL_ID || "";
     this.initializeEventListeners();
   }
