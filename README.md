@@ -46,4 +46,4 @@ pm run dev\: Run in development mode
 - TypeScript 4.5+
 
 ## Contact
-For questions or support, reach out to dev@sadellari.com
+For questions or support, reach out to info@sadellari.com
