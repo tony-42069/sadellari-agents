@@ -1,6 +1,6 @@
 # Sadellari Agents
 
-An advanced AI agent framework powering Sadellari Enterprises' C-suite executive team. The system enables autonomous decision-making and collaboration between AI executives through Slack integration.
+An advanced AI agent framework powering Sadellari Enterprises' C-suite executive team. The system enables autonomous decision-making and collaboration between AI executives.
 
 ## Vision
 
@@ -15,7 +15,6 @@ Each agent has specific domain expertise and responsibilities:
 ## Key Features
 
 - **Autonomous Decision-Making:** Agents can make decisions within their domains without human intervention
-- **Real-time Slack Communication:** Natural language interface via Slack for both human-to-agent and agent-to-agent communication
 - **Inter-agent Messaging System:** Structured protocol for agents to request information and services from each other
 - **Decision-making Pipelines:** Formalized workflows for complex decisions requiring multi-agent input
 - **Event-driven Architecture:** Responsive system that reacts to external events and internal state changes
@@ -24,7 +23,6 @@ Each agent has specific domain expertise and responsibilities:
 ## Technical Stack
 
 - **TypeScript:** Strongly-typed implementation for reliability and maintainability
-- **Slack Bolt Framework:** Robust Slack API integration
 - **Node.js:** Scalable runtime environment
 - **Event-driven Architecture:** Message-based communication between components
 - **Modular Design Pattern:** Extensible structure for adding new agents and capabilities
@@ -37,15 +35,6 @@ For detailed documentation, see the `/docs` directory:
 - [System Architecture](/docs/architecture/overview.md)
 - [Agent Model](/docs/architecture/agent-model.md)
 - [Development Guide](/docs/development/contributing.md)
-
-## Current Status
-
-The project is in active development with the following components implemented:
-- ✅ Core Slack integration
-- ✅ CEO Agent (basic functionality)
-- 🔄 CFO Agent (in progress)
-- 📅 CTO Agent (planned)
-- 📅 CLO Agent (planned)
 
 ## Project Structure
 ```
@@ -62,13 +51,6 @@ sadellari-agents/
 │   ├── development/
 │   └── deployment/
 ```
-
-## Requirements
-
-- Node.js 16+
-- Slack workspace with bot tokens configured
-- TypeScript 4.5+
-- Environment variables configured as described in [configuration guide](/docs/getting-started/configuration.md)
 
 ## Quick Start
 
