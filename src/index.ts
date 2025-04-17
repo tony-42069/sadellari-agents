@@ -1,26 +1,34 @@
-# Create new index.ts with UTF8 encoding
-@'
-import { initializeSlack } from './shared/slack';
+import dotenv from 'dotenv';
+dotenv.config();
+
 import { config } from './config/settings';
 import { CEOAgent } from './agents/ceo/CEOAgent';
-import { CFOAgent } from './agents/cfo/CFOAgent';
-import { CTOAgent } from './agents/cto/CTOAgent';
-import { CLOAgent } from './agents/clo/CLOAgent';
+// import { CFOAgent } from './agents/cfo/CFOAgent';
+// import { CTOAgent } from './agents/cto/CTOAgent';
+// import { CLOAgent } from './agents/clo/CLOAgent';
 
-const start = async () => {
-  try {
-    // Start with CEO Agent first
-    const ceoAgent = new CEOAgent();
-    await ceoAgent.start();
-    console.log("CEO Agent started successfully");
+async function main() {
+  console.log('Initializing Sadellari Agents...');
 
-    // Other agents will be added later
-    console.log("All agents initialized successfully");
-  } catch (error) {
-    console.error("Error starting agents:", error);
-    process.exit(1);
-  }
-};
+  // Initialize Agents
+  const ceo = new CEOAgent();
+  // const cfo = new CFOAgent();
+  // const cto = new CTOAgent();
+  // const clo = new CLOAgent();
 
-start().catch(console.error);
-'@ | Out-File -Encoding UTF8 .\src\index.ts
+  console.log('Agents Initialized.');
+
+  // Start agents
+  // TODO: Implement start method in CEOAgent
+  // await ceo.start(); 
+  // await cfo.start();
+  // await cto.start();
+  // await clo.start();
+
+  console.log('Sadellari Agents are running.');
+}
+
+main().catch((error) => {
+  console.error('Failed to start Sadellari Agents:', error);
+  process.exit(1);
+});
