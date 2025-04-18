@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
+import { ReactNode } from 'react';
 
 interface Agent {
   id: string;
@@ -15,6 +17,11 @@ export default function Home() {
   const [agents, setAgents] = useState<Agent[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [searchTerm, setSearchTerm] = useState<string>('');
+  const filteredAgents = agents.filter(agent =>
+    agent.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+  const skeletonCount = 8;
 
   useEffect(() => {
     async function fetchAgents() {
@@ -51,94 +58,107 @@ export default function Home() {
   };
 
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <h1 className="text-3xl font-bold mb-6">Agents Dashboard</h1>
-        {loading && <p>Loading agents...</p>}
-        {error && <p className="text-red-600">Error: {error}</p>}
-        {!loading && !error && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {agents.map(agent => (
-              <div key={agent.id} className="bg-white p-4 rounded shadow">
-                <Image
-                  src={agent.avatar}
-                  alt={`${agent.name} avatar`}
-                  width={100}
-                  height={100}
-                  className="mx-auto mb-4"
-                />
-                <h2 className="text-xl font-semibold text-center mb-2">{agent.name}</h2>
-                <p className="text-sm text-gray-600 mb-4">{agent.description}</p>
-                <p className="text-sm mb-4">
-                  Status:{' '}
-                  <span className={`font-medium ${
-                    agent.status === 'running'
-                      ? 'text-green-600'
-                      : agent.status === 'initialized'
-                      ? 'text-blue-600'
-                      : 'text-red-600'
-                  }`}>
-                    {agent.status}
-                  </span>
-                </p>
-                <button
-                  onClick={() => startAgent(agent.id)}
-                  className="block w-full bg-indigo-600 text-white p-2 rounded hover:bg-indigo-700 transition"
-                  disabled={agent.status === 'running'}
-                >
-                  {agent.status === 'running' ? 'Running' : 'Start'}
-                </button>
+    <div className="flex flex-col min-h-screen bg-gray-50">
+      <header className="bg-gradient-to-r from-indigo-600 to-indigo-500 shadow-lg">
+        <div className="container mx-auto px-6 py-4 flex items-center justify-between">
+          <span className="text-2xl font-bold text-white">AgentChat</span>
+          <div className="flex items-center space-x-6">
+            <nav className="flex space-x-4">
+              <Link href="/" className="text-white hover:text-indigo-200">Dashboard</Link>
+              <Link href="/conversations" className="text-white hover:text-indigo-200">Conversations</Link>
+            </nav>
+            <div className="w-8 h-8 bg-gray-200 rounded-full" />
+          </div>
+        </div>
+      </header>
+      <main className="flex-1 container mx-auto px-6 py-10">
+        <div className="flex flex-col sm:flex-row sm:justify-between items-center mb-8">
+          <h1 className="text-4xl font-extrabold text-gray-900">Agents Dashboard</h1>
+          <div className="relative mt-4 sm:mt-0 w-full sm:w-1/2 lg:w-1/3">
+            <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none">
+              <svg className="w-5 h-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" clipRule="evenodd" d="M8 4a4 4 0 014 4c0 .89-.3 1.71-.8 2.38l4.24 4.24a1 1 0 01-1.42 1.42l-4.24-4.24A4 4 0 118 4zm0 2a2 2 0 100 4 2 2 0 000-4z" />
+              </svg>
+            </div>
+            <input
+              type="text"
+              value={searchTerm}
+              onChange={e => setSearchTerm(e.target.value)}
+              placeholder="Search agents..."
+              className="pl-12 w-full p-3 border border-gray-200 rounded-full shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"
+            />
+          </div>
+        </div>
+        {loading && (
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-8">
+            {[...Array(skeletonCount)].map((_, i) => (
+              <div key={i} className="bg-white rounded-2xl p-6 shadow-lg animate-pulse">
+                <div className="w-24 h-24 bg-gray-200 rounded-full mx-auto mb-4" />
+                <div className="h-6 bg-gray-200 rounded mb-2" />
+                <div className="h-4 bg-gray-200 rounded w-3/4 mb-4 mx-auto" />
+                <div className="h-10 bg-gray-200 rounded-full w-full" />
               </div>
             ))}
           </div>
         )}
+        {error && <p className="text-red-600">Error: {error}</p>}
+        {!loading && !error && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+            {filteredAgents.map(agent => {
+              const statusMap = {
+                running: { label: 'Active', bg: 'bg-green-100', text: 'text-green-600' },
+                initialized: { label: 'Ready', bg: 'bg-blue-100', text: 'text-blue-600' },
+                stopped: { label: 'Offline', bg: 'bg-red-100', text: 'text-red-600' },
+              };
+              const info = statusMap[agent.status];
+              return (
+                <div
+                  key={agent.id}
+                  className="relative flex flex-col bg-white rounded-2xl p-6 shadow-lg hover:shadow-2xl transform hover:-translate-y-1 hover:scale-105 transition"
+                >
+                  <span
+                    className={`absolute top-4 right-4 px-3 py-1 rounded-full text-sm font-medium ${info.bg} ${info.text}`}
+                  >
+                    {info.label}
+                  </span>
+                  <Image
+                    src={agent.avatar}
+                    alt={`${agent.name} avatar`}
+                    width={96}
+                    height={96}
+                    className="w-24 h-24 rounded-full mx-auto mb-4"
+                  />
+                  <h2 className="text-xl font-semibold text-center text-gray-900 mb-2">
+                    {agent.name}
+                  </h2>
+                  <p className="text-gray-600 text-center mb-6">{agent.description}</p>
+                  <button
+                    onClick={() => startAgent(agent.id)}
+                    disabled={agent.status === 'running'}
+                    className={`mt-auto py-2 font-semibold text-white rounded-full transition ${
+                      agent.status === 'running'
+                        ? 'bg-gray-400 cursor-not-allowed'
+                        : 'bg-gradient-to-r from-indigo-500 to-indigo-600 hover:from-indigo-600 hover:to-indigo-700'
+                    }`}
+                  >
+                    {agent.status === 'running' ? 'Running...' : 'Start Agent'}
+                  </button>
+                  <Link
+                    href={`/conversations/${agent.id}`}
+                    className="mt-4 py-2 text-sm font-medium text-indigo-600 border border-indigo-600 rounded-full hover:bg-indigo-50 transition text-center"
+                  >
+                    Chat
+                  </Link>
+                </div>
+              );
+            })}
+          </div>
+        )}
       </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
+      <footer className="bg-white border-t py-6">
+        <div className="container mx-auto px-6 text-center text-gray-400 text-sm">
+          &copy; 2025 AgentChat. All rights reserved.
+        </div>
       </footer>
     </div>
   );
