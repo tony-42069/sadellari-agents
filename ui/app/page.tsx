@@ -57,6 +57,18 @@ export default function Home() {
     }
   };
 
+  const statusMap = {
+    running: { label: 'Active', bg: 'bg-green-100', text: 'text-green-600' },
+    initialized: { label: 'Ready', bg: 'bg-blue-100', text: 'text-blue-600' },
+    stopped: { label: 'Offline', bg: 'bg-red-100', text: 'text-red-600' },
+  } as const;
+
+  const groupedAgents = {
+    running: filteredAgents.filter(a => a.status === 'running'),
+    initialized: filteredAgents.filter(a => a.status === 'initialized'),
+    stopped: filteredAgents.filter(a => a.status === 'stopped'),
+  };
+
   return (
     <div className="flex flex-col min-h-screen bg-gray-50">
       <header className="bg-gradient-to-r from-indigo-600 to-indigo-500 shadow-lg">
@@ -103,56 +115,61 @@ export default function Home() {
         )}
         {error && <p className="text-red-600">Error: {error}</p>}
         {!loading && !error && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-            {filteredAgents.map(agent => {
-              const statusMap = {
-                running: { label: 'Active', bg: 'bg-green-100', text: 'text-green-600' },
-                initialized: { label: 'Ready', bg: 'bg-blue-100', text: 'text-blue-600' },
-                stopped: { label: 'Offline', bg: 'bg-red-100', text: 'text-red-600' },
-              };
-              const info = statusMap[agent.status];
+          <>
+            {Object.entries(groupedAgents).map(([status, sectionAgents]) => {
+              if (!sectionAgents.length) return null;
+              const info = statusMap[status as keyof typeof statusMap];
               return (
-                <div
-                  key={agent.id}
-                  className="relative flex flex-col bg-white rounded-2xl p-6 shadow-lg hover:shadow-2xl transform hover:-translate-y-1 hover:scale-105 transition"
-                >
-                  <span
-                    className={`absolute top-4 right-4 px-3 py-1 rounded-full text-sm font-medium ${info.bg} ${info.text}`}
-                  >
-                    {info.label}
-                  </span>
-                  <Image
-                    src={agent.avatar}
-                    alt={`${agent.name} avatar`}
-                    width={96}
-                    height={96}
-                    className="w-24 h-24 rounded-full mx-auto mb-4"
-                  />
-                  <h2 className="text-xl font-semibold text-center text-gray-900 mb-2">
-                    {agent.name}
-                  </h2>
-                  <p className="text-gray-600 text-center mb-6">{agent.description}</p>
-                  <button
-                    onClick={() => startAgent(agent.id)}
-                    disabled={agent.status === 'running'}
-                    className={`mt-auto py-2 font-semibold text-white rounded-full transition ${
-                      agent.status === 'running'
-                        ? 'bg-gray-400 cursor-not-allowed'
-                        : 'bg-gradient-to-r from-indigo-500 to-indigo-600 hover:from-indigo-600 hover:to-indigo-700'
-                    }`}
-                  >
-                    {agent.status === 'running' ? 'Running...' : 'Start Agent'}
-                  </button>
-                  <Link
-                    href={`/conversations/${agent.id}`}
-                    className="mt-4 py-2 text-sm font-medium text-indigo-600 border border-indigo-600 rounded-full hover:bg-indigo-50 transition text-center"
-                  >
-                    Chat
-                  </Link>
+                <div key={status} className="mb-12">
+                  <div className="sticky top-0 bg-gray-50 py-2">
+                    <h2 className="text-2xl font-semibold text-gray-800 capitalize">{info.label} ({sectionAgents.length})</h2>
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 mt-4">
+                    {sectionAgents.map(agent => (
+                      <div
+                        key={agent.id}
+                        className="relative flex flex-col bg-white rounded-2xl p-6 shadow-lg hover:shadow-2xl transform hover:-translate-y-1 hover:scale-105 transition"
+                      >
+                        <span
+                          className={`absolute top-4 right-4 px-3 py-1 rounded-full text-sm font-medium ${statusMap[agent.status].bg} ${statusMap[agent.status].text}`}
+                        >
+                          {statusMap[agent.status].label}
+                        </span>
+                        <Image
+                          src={agent.avatar}
+                          alt={`${agent.name} avatar`}
+                          width={96}
+                          height={96}
+                          className="w-24 h-24 rounded-full mx-auto mb-4"
+                        />
+                        <h2 className="text-xl font-semibold text-center text-gray-900 mb-2">
+                          {agent.name}
+                        </h2>
+                        <p className="text-gray-600 text-center mb-6">{agent.description}</p>
+                        <button
+                          onClick={() => startAgent(agent.id)}
+                          disabled={agent.status === 'running'}
+                          className={`mt-auto py-2 font-semibold text-white rounded-full transition ${
+                            agent.status === 'running'
+                              ? 'bg-gray-400 cursor-not-allowed'
+                              : 'bg-gradient-to-r from-indigo-500 to-indigo-600 hover:from-indigo-600 hover:to-indigo-700'
+                          }`}
+                        >
+                          {agent.status === 'running' ? 'Running...' : 'Start Agent'}
+                        </button>
+                        <Link
+                          href={`/conversations/${agent.id}`}
+                          className="mt-4 py-2 text-sm font-medium text-indigo-600 border border-indigo-600 rounded-full hover:bg-indigo-50 transition text-center"
+                        >
+                          Chat
+                        </Link>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               );
             })}
-          </div>
+          </>
         )}
       </main>
       <footer className="bg-white border-t py-6">

@@ -8,6 +8,7 @@ interface Agent {
   id: string;
   name: string;
   avatar: string;
+  status: string;
 }
 
 export default function Sidebar() {
@@ -33,31 +34,82 @@ export default function Sidebar() {
   }, []);
 
   if (loading) {
-    return <aside className="w-64 p-4">Loading agents…</aside>;
+    return <aside className="w-80 bg-gradient-to-b from-indigo-700 to-indigo-900 text-white flex flex-col h-screen border-r border-indigo-600">Loading agents…</aside>;
   }
 
   if (error) {
-    return <aside className="w-64 p-4 text-red-600">Error: {error}</aside>;
+    return <aside className="w-80 bg-gradient-to-b from-indigo-700 to-indigo-900 text-white flex flex-col h-screen border-r border-indigo-600 text-red-600">Error: {error}</aside>;
   }
 
   return (
-    <aside className="w-64 bg-indigo-700 text-white flex flex-col overflow-auto">
-      <div className="mb-6 flex items-center justify-center py-4 border-b border-indigo-600">
+    <aside className="w-80 bg-gradient-to-b from-indigo-700 to-indigo-900 text-white flex flex-col h-screen border-r border-indigo-600">
+      <div className="flex items-center justify-between px-6 py-4 border-b border-indigo-700">
         <span className="text-2xl font-bold">AgentChat</span>
+        <div className="w-8 h-8 bg-gray-300 rounded-full" />
       </div>
-      <ul className="space-y-2">
-        {agents.map(agent => (
-          <li key={agent.id}>
+      <nav className="flex-1 px-6 py-6 overflow-y-auto">
+        <ul className="space-y-4">
+          <li>
             <Link
-              href={`/conversations/${agent.id}`}
-              className={`flex items-center space-x-3 px-4 py-2 rounded-lg transition-colors duration-200 ${pathname.includes(agent.id) ? 'bg-indigo-800' : 'hover:bg-indigo-600'}`}
+              href="/"
+              className={`relative flex items-center px-6 py-3 rounded-lg transition-colors ${pathname === '/' ? 'bg-indigo-600 before:absolute before:left-0 before:top-0 before:h-full before:w-1 before:bg-white' : 'hover:bg-indigo-600'}`}
             >
-              <Image src={agent.avatar} width={32} height={32} alt={agent.name} className="rounded-full" />
-              <span className="text-white font-medium">{agent.name}</span>
+              <span className="ml-4 text-lg font-medium">Dashboard</span>
             </Link>
           </li>
-        ))}
-      </ul>
+          <li>
+            <Link
+              href="/conversations"
+              className={`relative flex items-center px-6 py-3 rounded-lg transition-colors ${pathname.startsWith('/conversations') && !pathname.includes('[') ? 'bg-indigo-600 before:absolute before:left-0 before:top-0 before:h-full before:w-1 before:bg-white' : 'hover:bg-indigo-600'}`}
+            >
+              <span className="ml-4 text-lg font-medium">Conversations</span>
+            </Link>
+          </li>
+          <li>
+            <Link
+              href="/analytics"
+              className={`relative flex items-center px-6 py-3 rounded-lg transition-colors ${pathname === '/analytics' ? 'bg-indigo-600 before:absolute before:left-0 before:top-0 before:h-full before:w-1 before:bg-white' : 'hover:bg-indigo-600'}`}
+            >
+              <span className="ml-4 text-lg font-medium">Analytics</span>
+            </Link>
+          </li>
+          <li>
+            <Link
+              href="/settings"
+              className={`relative flex items-center px-6 py-3 rounded-lg transition-colors ${pathname === '/settings' ? 'bg-indigo-600 before:absolute before:left-0 before:top-0 before:h-full before:w-1 before:bg-white' : 'hover:bg-indigo-600'}`}
+            >
+              <span className="ml-4 text-lg font-medium">Settings</span>
+            </Link>
+          </li>
+        </ul>
+        <div className="mt-8">
+          <h3 className="text-sm uppercase font-semibold text-indigo-300 mb-2">Pinned Agents</h3>
+          <ul className="space-y-2">
+            {agents.filter(a => a.status === 'running').map(agent => (
+              <li key={agent.id}>
+                <Link
+                  href={`/conversations/${agent.id}`}
+                  className="flex items-center px-4 py-2 rounded-lg hover:bg-indigo-600 transition-colors"
+                >
+                  <Image
+                    src={agent.avatar}
+                    width={28}
+                    height={28}
+                    alt={agent.name}
+                    className="rounded-full"
+                  />
+                  <span className="ml-3 text-base font-medium text-white">{agent.name}</span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </nav>
+      <div className="px-6 py-4 text-sm text-indigo-300 border-t border-indigo-700 text-center">
+        Logged in as John Doe
+        <br />
+        <button className="mt-2 text-indigo-400 hover:text-white text-xs">Logout</button>
+      </div>
     </aside>
   );
 }
