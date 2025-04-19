@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import Sidebar from './components/Sidebar';
+import ChatWrapper from './components/ChatWrapper';
 import "./globals.css";
 
 const geistSans = Geist({
@@ -30,9 +31,9 @@ export default function RootLayout({
       >
         <div className="flex min-h-screen">
           <Sidebar />
-          <main className="flex-1 overflow-auto p-8">
+          <ChatWrapper>
             {children}
-          </main>
+          </ChatWrapper>
         </div>
       </body>
     </html>
