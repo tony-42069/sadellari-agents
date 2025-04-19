@@ -79,6 +79,11 @@ export default function Home() {
               <Link href="/" className="text-white hover:text-indigo-200">Dashboard</Link>
               <Link href="/conversations" className="text-white hover:text-indigo-200">Conversations</Link>
             </nav>
+            <button aria-label="Notifications" className="text-white hover:text-indigo-200">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-6 h-6">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11c0-3.07-1.64-5.64-5-6.32V4a2 2 0 10-4 0v.68C7.64 5.36 6 7.93 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m2 0v1a3 3 0 006 0v-1m-6 0h6" />
+              </svg>
+            </button>
             <div className="w-8 h-8 bg-gray-200 rounded-full" />
           </div>
         </div>
@@ -128,7 +133,7 @@ export default function Home() {
                     {sectionAgents.map(agent => (
                       <div
                         key={agent.id}
-                        className="relative flex flex-col bg-white rounded-2xl p-6 shadow-lg hover:shadow-2xl transform hover:-translate-y-1 hover:scale-105 transition"
+                        className="fade-in-up relative flex flex-col bg-white rounded-2xl p-6 shadow-lg hover:shadow-2xl transform hover:-translate-y-1 hover:scale-105 transition"
                       >
                         <span
                           className={`absolute top-4 right-4 px-3 py-1 rounded-full text-sm font-medium ${statusMap[agent.status].bg} ${statusMap[agent.status].text}`}

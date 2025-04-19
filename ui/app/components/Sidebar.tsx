@@ -81,6 +81,17 @@ export default function Sidebar() {
               <span className="ml-4 text-lg font-medium">Settings</span>
             </Link>
           </li>
+          <li>
+            <button
+              onClick={() => window.dispatchEvent(new CustomEvent('openGlobalChat'))}
+              className="relative flex items-center px-6 py-3 rounded-lg transition-colors hover:bg-indigo-600 w-full text-left"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M8 10h.01M12 10h.01M16 10h.01M21 16c0 1.656-1.344 3-3 3H6l-4 4V5c0-1.656 1.344-3 3-3h12c1.656 0 3 1.344 3 3v11z" />
+              </svg>
+              <span className="ml-4 text-lg font-medium">Global Chat</span>
+            </button>
+          </li>
         </ul>
         <div className="mt-8">
           <h3 className="text-sm uppercase font-semibold text-indigo-300 mb-2">Pinned Agents</h3>
